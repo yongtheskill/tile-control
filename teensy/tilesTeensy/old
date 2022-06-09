@@ -1,0 +1,51 @@
+#include <Arduino.h>
+#include <i2c_driver.h>
+#include <i2c_driver_wire.h>
+
+int sensor_address = 1;
+
+void setup()
+{
+  pinMode(LED_BUILTIN, OUTPUT);
+  Serial.begin(9600);                    // start serial for output
+
+  Wire.setClock(400 * 1000);   // Set the clock speed before calling begin()
+  Wire.begin();                         // join i2c bus
+
+  Wire.beginTransmission(sensor_address);
+  Wire.write(1);                                      
+  Wire.endTransmission(true);
+}
+
+void loop()
+{
+  digitalWrite(LED_BUILTIN, HIGH);  // briefly flash the LED
+
+  // Read back the config
+
+  // Request the contents of register 0
+  Wire.beginTransmission(sensor_address);
+  Wire.write(1);
+  Wire.endTransmission(false);
+
+  // Read the register
+  Serial.println("requesting...");
+  Wire.requestFrom(sensor_address, 5, true);
+  while(Wire.available()) {
+    uint8_t c = Wire.read();
+    Serial.print(c);   
+  }
+
+  Serial.println();
+  delay(500);
+
+  // Request the contents of register 0
+  Wire.beginTransmission(sensor_address);
+  Wire.write(0);
+  Wire.endTransmission(false);
+
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(500);
+  
+
+}
